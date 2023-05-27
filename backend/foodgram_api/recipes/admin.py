@@ -1,8 +1,7 @@
 from django.contrib import admin
 
-from .models import (Tag, Ingredient, Recipe, IngredientInRecipe,
-                     ShoppingCart, Favorites
-                     )
+from .models import (Favorites, Ingredient, IngredientInRecipe, Recipe,
+                     ShoppingCart, Tag)
 
 
 class RecipeAdmin(admin.ModelAdmin):
@@ -25,4 +24,3 @@ admin.site.register(IngredientInRecipe)
 admin.site.register(Recipe, RecipeAdmin)
 admin.site.register(ShoppingCart)
 admin.site.register(Favorites)
-

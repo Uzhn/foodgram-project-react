@@ -18,4 +18,3 @@ class Command(BaseCommand):
                     measurement_unit=ingredient['measurement_unit']
                 )
         self.stdout.write(self.style.SUCCESS('Successfully entered the data into the database'))
-

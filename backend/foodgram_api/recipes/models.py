@@ -1,5 +1,5 @@
+from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
-from django.core.validators import MinValueValidator
 
 from users.models import CustomUser
 
@@ -7,7 +7,13 @@ from users.models import CustomUser
 class Tag(models.Model):
     """Модель тега."""
     name = models.CharField('Название', max_length=200)
-    color = models.CharField('Цвет', max_length=7, blank=True, null=True)
+    color = models.CharField('Цвет формата HEX', max_length=7,
+                             validators=[
+                                 RegexValidator(
+                                     regex='^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$',
+                                     message='Неверное значение формата HEX'
+                                 )
+                             ])
     slug = models.SlugField('Слаг', max_length=200)
 
     class Meta:
@@ -109,5 +115,3 @@ class Favorites(models.Model):
 
     def __str__(self):
         return f'{self.user} добавил в избранное {self.recipe}'
-
-
