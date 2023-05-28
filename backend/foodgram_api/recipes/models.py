@@ -10,10 +10,9 @@ class Tag(models.Model):
     color = models.CharField('Цвет формата HEX', max_length=7,
                              validators=[
                                  RegexValidator(
-                                     regex='^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$',
+                                     '^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$',
                                      message='Неверное значение формата HEX'
-                                 )
-                             ])
+                                 )])
     slug = models.SlugField('Слаг', max_length=200)
 
     class Meta:
@@ -47,10 +46,13 @@ class Recipe(models.Model):
     name = models.CharField('Название', max_length=200)
     image = models.ImageField('Изображение', upload_to='recipes/images/')
     text = models.TextField('Описание')
-    ingredients = models.ManyToManyField(Ingredient, through='IngredientInRecipe',
+    ingredients = models.ManyToManyField(Ingredient,
+                                         through='IngredientInRecipe',
                                          verbose_name='Ингредиенты'
                                          )
-    tags = models.ManyToManyField(Tag, verbose_name='Теги', related_name='recipes')
+    tags = models.ManyToManyField(Tag,
+                                  verbose_name='Теги',
+                                  related_name='recipes')
     cooking_time = models.IntegerField(
         'Время приготовления (в минутах)',
         validators=[MinValueValidator(1, message='>= 1')],
@@ -73,7 +75,9 @@ class IngredientInRecipe(models.Model):
                                    related_name='ingredients_in_recipe',
                                    verbose_name='Ингредиент')
     amount = models.PositiveIntegerField('Количество',
-                                         validators=[MinValueValidator(1, message='>= 1')])
+                                         validators=[
+                                             MinValueValidator(
+                                                 1, message='>= 1')])
 
     class Meta:
         verbose_name = 'Ингредиент в рецепте'
@@ -112,6 +116,11 @@ class Favorites(models.Model):
     class Meta:
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'recipe'],
+                                    name='user_recipe'
+                                    )
+        ]
 
     def __str__(self):
         return f'{self.user} добавил в избранное {self.recipe}'

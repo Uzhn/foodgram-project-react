@@ -4,11 +4,16 @@ from .models import (Favorites, Ingredient, IngredientInRecipe, Recipe,
                      ShoppingCart, Tag)
 
 
+class RecipeShipInline(admin.TabularInline):
+    model = Recipe.ingredients.through
+
+
 class RecipeAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'author')
     list_filter = ('name', 'author', 'tags')
     search_fields = ('name', 'author', 'tags')
     empty_value_display = '-пусто-'
+    inlines = [RecipeShipInline, ]
 
 
 class IngredientAdmin(admin.ModelAdmin):
