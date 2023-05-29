@@ -10,4 +10,4 @@ RUN pip3 install -r requirements.txt --no-cache-dir
 
 COPY backend/foodgram_api/ .
 
-CMD ["gunicorn", "foodgram_api.foodgram_api.wsgi:application", "--bind", "0:8000" ]
+CMD ["gunicorn", "foodgram_api.wsgi:application", "--bind", "0:8000" ]
