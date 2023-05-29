@@ -20,9 +20,7 @@ services:
       - .env
 
   frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
+    image: uzhn/frontend:latest
     volumes:
       - ../frontend/:/app/result_build/
 
@@ -36,6 +34,7 @@ services:
       - ../docs/:/usr/share/nginx/html/api/docs/
     depends_on:
       - web
+      - frontend
 
 
 volumes:
