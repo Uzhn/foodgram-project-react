@@ -5,14 +5,10 @@ services:
     image: postgres:13.0-alpine
     volumes:
       - db_value:/var/lib/postgresql/data/
-    environment:
-      - POSTGRES_USER=uzhn
-      - POSTGRES_PASSWORD=123456
-      - POSTGRES_DB=foodgram_db
     ports:
       - "5432:5432"
     env_file:
-      - .env
+      - ./.env
 
   web:
     image: uzhn/foodgram_api:latest
@@ -23,7 +19,7 @@ services:
     depends_on:
       - db
     env_file:
-      - .env
+      - ./.env
 
   frontend:
     image: uzhn/frontend:latest
