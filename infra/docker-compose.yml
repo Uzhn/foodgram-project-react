@@ -6,7 +6,7 @@ services:
     volumes:
       - db_value:/var/lib/postgresql/data/
     env_file:
-      - ../backend/.env
+      - ./.env
 
   web:
     image: uzhn/foodgram_api:latest
@@ -17,14 +17,12 @@ services:
     depends_on:
       - db
     env_file:
-      - ../backend/.env
+      - ./.env
 
   frontend:
     image: uzhn/frontend:latest
     volumes:
       - ../frontend/:/app/result_build/
-    depends_on:
-      - web
 
   nginx:
     image: nginx:1.19.3
@@ -38,7 +36,6 @@ services:
       - media_value:/var/html/media/
     depends_on:
       - web
-      - frontend
 
 
 volumes:
