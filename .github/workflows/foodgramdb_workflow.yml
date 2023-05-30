@@ -73,7 +73,7 @@ jobs:
             sudo docker-compose up -d
             sudo docker-compose exec web python manage.py migrate
             sudo docker-compose exec web python manage.py collectstatic --no-input
-            python manage.py ingredients
+            python3 manage.py ingredients
   send_message:
     runs-on: ubuntu-latest
     needs: deploy
