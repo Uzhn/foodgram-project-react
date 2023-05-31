@@ -23,6 +23,7 @@ from users.models import CustomUser, Subscription
 
 class CustomUserViewSet(UserViewSet):
     """Вьюсет модели пользователя, наследуется от djoser.views.UserViewSet."""
+    pagination_class = LimitOffsetPagination
 
     @action(detail=False)
     def subscriptions(self, request):
