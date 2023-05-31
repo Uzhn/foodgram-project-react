@@ -2,9 +2,9 @@ import base64
 
 from api.utils import create_update_ing
 from django.core.files.base import ContentFile
+from rest_framework import serializers
 from recipes.models import (Favorites, Ingredient, IngredientInRecipe, Recipe,
                             ShoppingCart, Tag)
-from rest_framework import serializers
 from users.models import CustomUser, Subscription
 
 
@@ -139,7 +139,8 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
         instance.tags.set(tags)
-        IngredientInRecipe.objects.filter(name=instance).delete()
+        # IngredientInRecipe.objects.filter(name=instance).delete()
+        instance.ingredients.clear()
         super().update(instance, validated_data)
         create_update_ing(ingredients, instance)
         instance.save()
