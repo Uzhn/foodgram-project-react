@@ -10,7 +10,7 @@ from rest_framework.permissions import (AllowAny, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly,)
 from rest_framework.response import Response
 
-from api.filters import IngredientFilter, RecipeFilters
+from api.filters import IngredientFilter, RecipeFilters, RecipeAnonymousFilters
 from api.permissions import IsAuthorAdminOrReadOnly
 from api.serializers import (IngredientSerializer,
                              RecipeCreateUpdateSerializer,
@@ -79,9 +79,14 @@ class TagViewSet(viewsets.ModelViewSet):
 class RecipeViewSet(viewsets.ModelViewSet):
     """Вьюсет модели рецепта."""
     queryset = Recipe.objects.all()
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (IsAuthorAdminOrReadOnly, )
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilters
+
+    def get_queryset(self):
+        if self.request.user.is_anonymous:
+            self.filterset_class = RecipeAnonymousFilters
+        return super().get_queryset()
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
