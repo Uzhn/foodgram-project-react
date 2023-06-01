@@ -9,11 +9,15 @@ class RecipeShipInline(admin.TabularInline):
 
 
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'author')
+    list_display = ('id', 'name', 'author', 'favorites')
     list_filter = ('name', 'author', 'tags')
     search_fields = ('name', 'author', 'tags')
     empty_value_display = '-пусто-'
     inlines = [RecipeShipInline, ]
+    readonly_fields = ('favorites',)
+
+    def favorites(self, obj):
+        return Favorites.objects.filter(recipe=obj).count()
 
 
 class IngredientAdmin(admin.ModelAdmin):

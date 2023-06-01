@@ -107,12 +107,12 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def get_is_favorited(self, obj):
         """Метод проверяет наличие рецепта в избранном."""
-        user = self.context['request'].user.is_authenticated
+        user = self.context['request'].user
         return Favorites.objects.filter(user=user, recipe=obj).exists()
 
     def get_is_in_shopping_cart(self, obj):
         """Метод проверяет наличие рецепта в корзине."""
-        user = self.context['request'].user.is_authenticated
+        user = self.context['request'].user
         return ShoppingCart.objects.filter(user=user, recipe=obj).exists()
 
 
@@ -141,7 +141,6 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
         instance.tags.set(tags)
-        # IngredientInRecipe.objects.filter(name=instance).delete()
         instance.ingredients.clear()
         super().update(instance, validated_data)
         create_update_ing(ingredients, instance)
@@ -218,7 +217,7 @@ class ShoppingCartSerializer(serializers.ModelSerializer):
     def validate(self, data):
         user = self.context['request'].user
         products = self.context['products']
-        if Favorites.objects.filter(user=user, recipe=products).exists():
+        if ShoppingCart.objects.filter(user=user, recipe=products).exists():
             raise serializers.ValidationError(
                 'Этот рецепт уже есть в списке покупок.'
             )

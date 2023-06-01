@@ -1,15 +1,16 @@
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.decorators import action
-from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import (AllowAny, IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly,)
 from rest_framework.response import Response
 
-from api.filters import IngredientFilter, RecipeFilter
+from api.filters import IngredientFilter, RecipeFilters
 from api.permissions import IsAuthorAdminOrReadOnly
 from api.serializers import (IngredientSerializer,
                              RecipeCreateUpdateSerializer,
@@ -23,14 +24,16 @@ from users.models import CustomUser, Subscription
 
 class CustomUserViewSet(UserViewSet):
     """Вьюсет модели пользователя, наследуется от djoser.views.UserViewSet."""
+    # queryset = CustomUser.objects.all()
 
-    @action(detail=False)
+    @action(detail=False, permission_classes=(IsAuthenticated, ))
     def subscriptions(self, request):
         """Метод возвращает список подписок пользователя."""
-        subs = CustomUser.objects.filter(following__user=request.user)
+        queryset = CustomUser.objects.filter(following__user=request.user)
+        subs = self.paginate_queryset(queryset)
         serializer = SubscriptionSerializer(
             subs, many=True, context={'request': request})
-        return Response(serializer.data)
+        return self.get_paginated_response(serializer.data)
 
     @action(detail=True, methods=['post', 'delete'],
             permission_classes=(IsAuthenticated, ))
@@ -56,10 +59,11 @@ class CustomUserViewSet(UserViewSet):
             return Response('Вы отписались от автора')
 
 
-class IngredientViewSet(viewsets.ModelViewSet):
+class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет модели ингредиента."""
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
+    filter_backends = (DjangoFilterBackend,)
     filterset_class = IngredientFilter
     pagination_class = None
 
@@ -75,9 +79,9 @@ class TagViewSet(viewsets.ModelViewSet):
 class RecipeViewSet(viewsets.ModelViewSet):
     """Вьюсет модели рецепта."""
     queryset = Recipe.objects.all()
-    pagination_class = LimitOffsetPagination
-    permission_classes = (IsAuthorAdminOrReadOnly, )
-    filterset_class = RecipeFilter
+    permission_classes = (IsAuthenticatedOrReadOnly, )
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = RecipeFilters
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
@@ -103,8 +107,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
         response['Content-Disposition'] = f'attachment; filename={filename}'
         return response
 
-    @action(detail=True, methods=['post', 'delete'])
+    @action(detail=True, methods=['post', 'delete'],
+            permission_classes=(IsAuthorAdminOrReadOnly, ))
     def shopping_cart(self, request, **kwargs):
+        if request.user.is_anonymous:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
         products = get_object_or_404(Recipe, id=kwargs['pk'])
         if request.method == 'POST':
             serializer = ShoppingCartSerializer(products, data=request.data,
