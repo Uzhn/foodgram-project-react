@@ -71,6 +71,8 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
     """Сериализатор модели ингредиента в рецепте."""
+    id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all(),
+                                            source='ingredient.id')
     name = serializers.CharField(source='ingredient.name', read_only=True)
     measurement_unit = serializers.CharField(
         source='ingredient.measurement_unit', read_only=True)
@@ -78,15 +80,6 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = IngredientInRecipe
         fields = ('id', 'name', 'measurement_unit', 'amount')
-
-
-class IngredientForRecipeSerializer(serializers.ModelSerializer):
-    """Сериализатор ингредиента при создании рецепта."""
-    id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
-
-    class Meta:
-        model = IngredientInRecipe
-        fields = ('id', 'amount')
 
 
 class RecipeSerializer(serializers.ModelSerializer):
@@ -120,7 +113,7 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     """Сериализатор для создания рецепта."""
-    ingredients = IngredientForRecipeSerializer(many=True)
+    ingredients = IngredientInRecipeSerializer(many=True)
     image = Base64ImageField()
 
     class Meta:
@@ -140,6 +133,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         """Метод обновления рецепта."""
+        print(validated_data)
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
         instance.tags.set(tags)
