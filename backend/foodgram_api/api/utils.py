@@ -1,5 +1,3 @@
-from django.shortcuts import get_object_or_404
-
 from recipes.models import IngredientInRecipe, Ingredient
 
 
@@ -16,5 +14,3 @@ def create_update_ing(ingredients, recipe):
             )
         )
     IngredientInRecipe.objects.bulk_create(ing_lst)
-
-
