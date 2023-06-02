@@ -1,4 +1,4 @@
-from recipes.models import IngredientInRecipe, Ingredient
+from recipes.models import IngredientInRecipe
 
 
 def create_update_ing(ingredients, recipe):
